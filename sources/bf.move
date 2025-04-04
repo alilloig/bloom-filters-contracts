@@ -39,6 +39,16 @@ fun check_writing_filter_is_full (cascade_filter: &mut CascadeFilter) {
     } 
 }
 
+public fun verify_data_inclusion (cascade_filter: &mut CascadeFilter, data: vector<u8>): bool {
+    let mut i = 0;
+    while (i < cascade_filter.filters.length()) {
+        if (bf_utils::is_set_to_one(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(hash::sha3_256(data)))) return true;
+        if (bf_utils::is_set_to_one(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)))) return true;
+        i = i + 1;
+    };
+    false
+}
+
 /// A BloomFilter is a space-efficient probabilistic data structure used to test whether an element
 /// is a member of a set. It may return false positives but never false negatives.
 /// This implementation uses a 256-bit array to store the filter state.
@@ -58,8 +68,8 @@ fun new_filter(): BloomFilter {
 /// Adds data to the Bloom filter by computing two hash functions and setting the corresponding bits.
 /// Uses both SHA3-256 and BLAKE2b-256 hash functions to reduce false positive probability.
 fun add_data_to_filter (filter: &mut BloomFilter, data: vector<u8>) {
-    filter.set_filter_bit(mmr_utils::hash_to_modulo_position(hash::sha3_256(data), 256));
-    filter.set_filter_bit(mmr_utils::hash_to_modulo_position(sui_hash::blake2b256(&data), 256));
+    filter.set_filter_bit(bf_utils::hash_to_modulo_position(hash::sha3_256(data)));
+    filter.set_filter_bit(bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)));
     filter.check_is_full()
 }
 

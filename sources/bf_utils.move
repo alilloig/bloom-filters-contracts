@@ -1,12 +1,7 @@
 module bf::bf_utils;
 
-#[error]
-const EModuloTooBig: vector<u8> = b"Only modulo up to 256 can be calculated since this function is meant to modulo integer native types";
-
-
-public fun hash_to_modulo_position(hash: vector<u8>, modulo: u256): u8 {
-    assert!(modulo <= 256, EModuloTooBig);
-    (hash_to_uint(hash) % modulo) as u8
+public fun hash_to_modulo_position(hash: vector<u8>): u8 {
+    (hash_to_uint(hash) % 256) as u8
 }
 
 fun hash_to_uint(hash: vector<u8>): u256 {
@@ -47,4 +42,8 @@ public fun are_half_ones(num: u256): bool {
         if (bit_count >= 128) return true;
     };
     false
+}
+
+public fun is_set_to_one(num: u256, position: u8): bool {
+    num & (1 << position) != 0
 }
