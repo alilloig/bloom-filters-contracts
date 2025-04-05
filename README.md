@@ -111,13 +111,9 @@ When adding data to the Cascade Filter:
 - The corresponding bits are set to 1
 - If the current filter becomes full, a new filter is created and added to the cascade
 
-#### Verifying Data Inclusion
-To verify if data is in the Cascade Filter:
+#### Verifying Data Exclusion
+To verify if data is not in the Cascade Filter:
 
-- The data is hashed using the same hash functions
-- Each filter in the cascade is checked for the presence of the corresponding bits
-- If any filter indicates the data may be present (all corresponding bits are 1), the result is positive
-- Only if all filters indicate the data is not present, the result is negative
 
 ## Advantages of Cascade Filters
 

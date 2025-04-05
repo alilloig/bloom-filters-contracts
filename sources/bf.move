@@ -43,12 +43,13 @@ fun check_writing_filter_is_full (cascade_filter: &mut CascadeFilter) {
 /// returns false if the element MAY BE on the filter
 public fun verify_data_exclusion (cascade_filter: &mut CascadeFilter, data: vector<u8>): bool {
     let mut i = 0;
+    let mut result: bool = false;
     while (i < cascade_filter.filters.length()) {
-        if (bf_utils::is_not_set(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(hash::sha3_256(data)))) return true;
-        if (bf_utils::is_not_set(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)))) return true;
+        result = cascade_filter.filters[i].verify_exclusion(data);
+        if (!result) break;
         i = i + 1;
     };
-    false
+    return result
 }
 
 /// A BloomFilter is a space-efficient probabilistic data structure used to test whether an element
@@ -85,4 +86,10 @@ fun set_filter_bit (filter: &mut BloomFilter, bit_position: u8) {
 /// This helps determine when to create a new filter in the cascade.
 fun check_is_full (filter: &mut BloomFilter) {
     if (bf_utils::are_half_ones(filter.bits)) filter.is_full = true
+}
+
+fun verify_exclusion(filter: &BloomFilter, data: vector<u8>): bool {
+    if (bf_utils::is_not_set(filter.bits, bf_utils::hash_to_modulo_position(hash::sha3_256(data)))) return true;
+    if (bf_utils::is_not_set(filter.bits, bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)))) return true;
+    false
 }
