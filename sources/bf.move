@@ -39,11 +39,13 @@ fun check_writing_filter_is_full (cascade_filter: &mut CascadeFilter) {
     } 
 }
 
-public fun verify_data_inclusion (cascade_filter: &mut CascadeFilter, data: vector<u8>): bool {
+/// Returns true if the element is NOT in the filter
+/// returns false if the element MAY BE on the filter
+public fun verify_data_exclusion (cascade_filter: &mut CascadeFilter, data: vector<u8>): bool {
     let mut i = 0;
     while (i < cascade_filter.filters.length()) {
-        if (bf_utils::is_set_to_one(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(hash::sha3_256(data)))) return true;
-        if (bf_utils::is_set_to_one(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)))) return true;
+        if (bf_utils::is_not_set(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(hash::sha3_256(data)))) return true;
+        if (bf_utils::is_not_set(cascade_filter.filters[i].bits, bf_utils::hash_to_modulo_position(sui_hash::blake2b256(&data)))) return true;
         i = i + 1;
     };
     false
