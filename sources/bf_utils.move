@@ -44,6 +44,6 @@ public fun are_half_ones(num: u256): bool {
     false
 }
 
-public fun is_set_to_one(num: u256, position: u8): bool {
-    num & (1 << position) != 0
+public fun is_not_set(num: u256, position: u8): bool {
+    num & (1 << position) == 0
 }
