@@ -112,7 +112,21 @@ When adding data to the Cascade Filter:
 - If the current filter becomes full, a new filter is created and added to the cascade
 
 #### Verifying Data Exclusion
+
 To verify if data is not in the Cascade Filter:
+
+1. The data is hashed using both SHA3-256 and BLAKE2b-256, just as during insertion
+1. For each Bloom filter in the cascade:
+- The hash values are checked against the corresponding bit positions
+- If any bit position is 0 for either hash function, the data is definitely not in that filter
+- If both bit positions are 1, the data may be in that filter (could be a false positive)
+3. Only if all filters in the cascade indicate possible presence (all relevant bits are 1) will the verification return false
+1. The verification returns true only when it can guarantee the data is not present in any filter
+
+This verification process leverages the fundamental property of Bloom filters: they can have false positives but never false negatives. 
+By examining each filter in the cascade sequentially, the system can definitively determine if an element is absent from the entire collection.
+The implementation checks filters in order, stopping as soon as any filter indicates possible presence. 
+This optimization improves performance for elements that may be present in the set, especially in cascade systems with many filters.
 
 
 ## Advantages of Cascade Filters
